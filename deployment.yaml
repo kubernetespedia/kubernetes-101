@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+        name: nginx-deployment
+        namespace: kubeapps
+        labels:
+                app: nginx
+spec:
+        replicas: 1
+        selector:
+                matchLabels:
+                        app: nginx
+        template:
+                metadata:
+                        labels:
+                                app: nginx
+
+
+                spec:
+                        containers:
+                        - name: nginx
+                          image: nginx:1.14.2
+                          env:
+                            - name: first_env
+                              valueFrom:
+                                configMapKeyRef:
+                                  name: configexample
+                                  key: first_env
+
+                          resources:
+                            requests:
+                             memory: "64Mi"
+                             cpu: "250m"
+                            limits:
+                             memory: "128Mi"
+                             cpu: "500m"
+                          ports:
+                          - containerPort: 80
+                          volumeMounts:
+                              - name: kube-persistent-storage
+                                mountPath: /data
+
+                        volumes:
+                        - name: kube-persistent-storage
+                          persistentVolumeClaim:
+                              claimName: kube-data        
+
